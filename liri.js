@@ -35,7 +35,7 @@ if (process.argv[2]==`my-tweets`){
   })
 }
 
-
+// This will show the  information about the requested song from spotify in your terminal/bash window
 else if (process.argv[2]==`spotify-this-song`) {
   var spotin =  process.argv[2];
   // console.log(spotin);
@@ -60,6 +60,7 @@ else if (process.argv[2]==`spotify-this-song`) {
      if (err) {
        // return console.log('Error occurred: ' + err);
        var defaultSong = "The Sign";
+       // * If no song is provided then your program will default to "The Sign" by Ace of Base.
        spotify.search({ type: 'track', query: defaultSong}, function(err, data) {
          console.log("\nCouldn't find the song you requested...searching for better song instead."); 
          for (i=0;i<data.tracks.items.length;i++){
@@ -82,31 +83,41 @@ else if (process.argv[2]==`spotify-this-song`) {
     }); 
   })
 }
-   // * This will show the following information about the song in your terminal/bash window
 
-   // * If no song is provided then your program will default to "The Sign" by Ace of Base.
-
-
+//  This will output movie information to your terminal/bash window:
 else if (process.argv[2]==`movie-this`) {
   var movin =  process.argv[2];
-  // console.log(movin);
+  //default movie title
+  movieName = "Mr. Nobody";  
+  
+  // if title is input after movie-this...
+  if (process.argv[3]!=undefined){
+    movieName=process.argv[3];
+  }
 
+  var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
+
+  //hits the API and returns info from the JSON
+  request(queryUrl, function(error, response, body) {
+    console.log("\nWe are checking our sources for your information.\n----------------------")
+    // If the request is successful
+    if (!error && response.statusCode === 200) {
+      console.log("Movie Title: " + JSON.parse(body).Title);
+      console.log("Release Year: " + JSON.parse(body).Year);
+      console.log("IMDB Rating: " + JSON.parse(body).imdbRating);
+      console.log("Rotten Tomatoes Rating: " + JSON.parse(body).Ratings[2].Value);
+      console.log("Production Locations: " + JSON.parse(body).Country);
+      console.log("Languages: " + JSON.parse(body).Language);
+      console.log("Movie Plot: " + JSON.parse(body).Plot);
+      console.log("Actors: " + JSON.parse(body).Actors);
+      console.log("----------------------\n");
+    }
+    // some other cases
+    else {
+      console.log("Whoops, we had a boo boo. Contact the webmaster.");
+    }
+  });
 }
-   // * This will output the following information to your terminal/bash window:
-   //   ```
-   //     * Title of the movie.
-   //     * Year the movie came out.
-   //     * IMDB Rating of the movie.
-   //     * Rotten Tomatoes Rating of the movie.
-   //     * Country where the movie was produced.
-   //     * Language of the movie.
-   //     * Plot of the movie.
-   //     * Actors in the movie.
-   //   ```
-   // * If the user doesn't type a movie in, the program will output data for the movie 'Mr. Nobody.'
-   //   * If you haven't watched "Mr. Nobody," then you should: <http://www.imdb.com/title/tt0485947/>
-   //   * It's on Netflix!   
-   // * You'll use the request package to retrieve data from the OMDB API. Like all of the in-class activities, the OMDB API requires an API key. You may use `trilogy`.
 
 
 else if (process.argv[2]==`do-what-it-says`) {
