@@ -1,0 +1,25 @@
+{
+  "name": "liri-node-app",
+  "version": "1.0.0",
+  "description": "a siri alternative",
+  "main": "liri.js",
+  "dependencies": {
+    "node-spotify-api": "^1.0.7",
+    "request": "^2.83.0",
+    "twitter": "^1.7.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arielkayne/liri-node-app.git"
+  },
+  "author": "Ariel Kayne",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arielkayne/liri-node-app/issues"
+  },
+  "homepage": "https://github.com/arielkayne/liri-node-app#readme"
+}
