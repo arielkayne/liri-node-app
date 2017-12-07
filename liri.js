@@ -53,25 +53,37 @@ else if (process.argv[2]==`spotify-this-song`) {
     var dataArr = data.split(",");
     var thisSong = dataArr[1];
 
-    console.log("You're searching for: "+thisSong);
+    console.log("\nYou're searching for: "+thisSong);
 
 
     spotify.search({ type: 'track', query: thisSong}, function(err, data) {
      if (err) {
-       return console.log('Error occurred: ' + err);
-     }   
+       // return console.log('Error occurred: ' + err);
+       var defaultSong = "The Sign";
+       spotify.search({ type: 'track', query: defaultSong}, function(err, data) {
+         console.log("\nCouldn't find the song you requested...searching for better song instead."); 
+         for (i=0;i<data.tracks.items.length;i++){
+           if (data.tracks.items[i].name==defaultSong){
+           // console.log(data.tracks.items[7]);           
+           console.log("\nHere are your results!\n----------------------\nArtist name: "+data.tracks.items[i].artists[0].name);
+           console.log("Song name: "+data.tracks.items[i].name);
+           console.log("Preview link: "+data.tracks.items[i].preview_url);
+           console.log("Album name: "+data.tracks.items[i].album.name+"\n----------------------\n");
+           }; 
+         }       
+      })
+     }
+     else {
      console.log("\nHere are your results!\n----------------------\nArtist name: "+data.tracks.items[0].artists[0].name);
      console.log("Song name: "+data.tracks.items[0].name);
      console.log("Preview link: "+data.tracks.items[0].preview_url);
      console.log("Album name: "+data.tracks.items[0].album.name+"\n----------------------\n");
-    });
+     }
+    }); 
   })
 }
    // * This will show the following information about the song in your terminal/bash window
-   //   * Artist(s)
-   //   * The song's name
-   //   * A preview link of the song from Spotify
-   //   * The album that the song is from
+
    // * If no song is provided then your program will default to "The Sign" by Ace of Base.
 
 
