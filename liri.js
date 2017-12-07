@@ -22,12 +22,24 @@ if (process.argv[2]==`my-tweets`){
 
 // This will show the  information about the requested song from spotify in your terminal/bash window
 else if (process.argv[2]==`spotify-this-song`) {
-  spotifyThis(process.argv[3]);
+  if (process.argv[3]!=undefined) {
+    spotifyThis(process.argv[3]);
+  }
+  else {
+    logIt("\n!!!!!!!!!!!!!\nYou didn't enter a song...so we're gonna present the greatest of all time.\n!!!!!!!!!!!!!");
+    spotifyThis("The Sign");
+  }
 }
 
 //  This will output movie information to your terminal/bash window:
 else if (process.argv[2]==`movie-this`) {
-  omdbThis(process.argv[3]);
+  if (process.argv[3]!=undefined){
+    omdbThis(process.argv[3]);
+  }
+  else {
+    logIt("\n!!!!!!!!!!!!!\nYou didn't enter a movie...so we're gonna present the greatest of all time.\n!!!!!!!!!!!!!");
+    omdbThis("Mr. Nobody");
+  }
 }
 
 //whoops...did for spotify what this was supposed to do.
@@ -61,35 +73,37 @@ function spotifyThis(thisSong){
     secret: spotifyKeys.spotifyKeys.secret
   });
 
-  console.log("\nYou're searching for: "+thisSong);
+  logIt("\n################\nYou're searching for: "+thisSong);
 
   spotify.search({ type: 'track', query: thisSong}, function(err, data) {
    if (err) {
      var defaultSong = "The Sign";
      // * If no song is provided then your program will default to "The Sign" by Ace of Base.
      spotify.search({ type: 'track', query: defaultSong}, function(err, data) {
-       console.log("\nCouldn't find the song you requested...searching for better song instead."); 
+       logIt("\nCouldn't find the song you requested...searching for better song instead."); 
        for (i=0;i<data.tracks.items.length;i++){
          if (data.tracks.items[i].name==defaultSong){
          // console.log(data.tracks.items[7]);           
-         console.log("\nHere is the best result!\n----------------------\nArtist name: "+data.tracks.items[i].artists[0].name);
-         console.log("Song name: "+data.tracks.items[i].name);
-         console.log("Preview link: "+data.tracks.items[i].preview_url);
-         console.log("Album name: "+data.tracks.items[i].album.name+"\n----------------------\n");
+         logIt("\nHere is the best result!\nArtist name: "+data.tracks.items[i].artists[0].name);
+         logIt("Song name: "+data.tracks.items[i].name);
+         logIt("Preview link: "+data.tracks.items[i].preview_url);
+         logIt("Album name: "+data.tracks.items[i].album.name+"\n################");
          }; 
        }       
     })
    } 
    else {
-   console.log("\nHere is the first (not necessarily the best) result...\n----------------------\nArtist name: "+data.tracks.items[0].artists[0].name);
-   console.log("Song name: "+data.tracks.items[0].name);
-    if (data.tracks.items[0].preview_url!=null){
-      console.log("Preview link: "+data.tracks.items[0].preview_url);
-    }
-    else {
-      console.log("Preview link: Not Available");
-    }
-   console.log("Album name: "+data.tracks.items[0].album.name+"\n----------------------\n");
+     logIt("Here is the first (not necessarily the best) result...");
+     logIt("Artist name: "+data.tracks.items[0].artists[0].name);
+     logIt("Song name: "+data.tracks.items[0].name);
+      if (data.tracks.items[0].preview_url!=null){
+        logIt("Preview link: "+data.tracks.items[0].preview_url);
+      }
+      else {
+        logIt("Preview link: Not Available");
+      }
+     logIt("Album name: "+data.tracks.items[0].album.name);
+     logIt("\n################\n");
    }
   }) 
 }
@@ -102,52 +116,56 @@ function twitterThis(params){
     access_token_secret: twitterKeys.twitterKeys.access_token_secret
   });
 
-  // params = {screen_name: 'testdevacct2000'};
-
   client.get('statuses/user_timeline', params, function(error, tweets, response) {
     if (!error) {
-      console.log("\nThese are the (up to) 20 most recent tweets by: "+params+"\n");
+      logIt("\n----------------------\n");
+      logIt("These are the (up to) 20 most recent tweets by: "+params+"\n");
       for (i=0;i<tweets.length;i++){
-        console.log(tweets[i].created_at+" "+params+" Tweeted: "+tweets[i].text);
+        logIt(tweets[i].created_at+" "+params+" Tweeted: "+tweets[i].text);
       }
-      console.log("");
-    };
-  })
+    }
+    else {
+      logIt("\n----------------------\n");
+      logIt("Your request errored out. Sorry.");
+    }
+    logIt("\n----------------------\n");
+  });
+  
 }
 
 //output sometimes has errors if movie title returns crappy info
 function omdbThis(movieTitle){
-  //default movie title
-  movieName = "Mr. Nobody";  
-  // if title is input after movie-this...
-  if (movieTitle!=undefined){
-    movieName=movieTitle;
-  }
-  var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
+
+  var queryUrl = "http://www.omdbapi.com/?t=" + movieTitle + "&y=&plot=short&apikey=trilogy";
   //hits the API and returns info from the JSON
   request(queryUrl, function(error, response, body) {
-    console.log("\nWe are checking our sources for your information.\n----------------------")
-    // If the request is successful
-    if (!error && response.statusCode === 200) {
-      console.log("Movie Title: " + JSON.parse(body).Title);
-      console.log("Release Year: " + JSON.parse(body).Year);
-      console.log("IMDB Rating: " + JSON.parse(body).imdbRating);
-      if (JSON.parse(body).Ratings[2]!=undefined){
-        console.log("Rotten Tomatoes Rating: " + JSON.parse(body).Ratings[2].Value);
+    logIt("\n/////////////////////////\n");
+    logIt("We are checking our sources for information on "+movieTitle+".\n")
+    if (!error && response.statusCode === 200) {      
+      if (JSON.parse(body).Response!="False"){
+        logIt("Movie Title: " + JSON.parse(body).Title);
+        logIt("Release Year: " + JSON.parse(body).Year);
+        logIt("IMDB Rating: " + JSON.parse(body).imdbRating);
+          if (JSON.parse(body).Ratings[2]){
+            logIt("Rotten Tomatoes Rating: " + JSON.parse(body).Ratings[2].Value);
+          }
+          else {
+            logIt("Rotten Tomatoes Rating: Unavailable");
+          }
+        logIt("Production Locations: " + JSON.parse(body).Country);
+        logIt("Languages: " + JSON.parse(body).Language);
+        logIt("Movie Plot: " + JSON.parse(body).Plot);
+        logIt("Actors: " + JSON.parse(body).Actors);
       }
       else {
-        console.log("Rotten Tomatoes Rating: Unavailable");
+        logIt("You're searching for a movie that never was made. Try again, dummy.");
       }
-      console.log("Production Locations: " + JSON.parse(body).Country);
-      console.log("Languages: " + JSON.parse(body).Language);
-      console.log("Movie Plot: " + JSON.parse(body).Plot);
-      console.log("Actors: " + JSON.parse(body).Actors);
-      console.log("----------------------\n");
     }
     // some other cases
     else {
-      console.log("Whoops, we had a boo boo. Contact the webmaster.");
+      logIt("Whoops, we had a boo boo. Contact the webmaster.");
     }
+  logIt("\n/////////////////////////\n");
   });
 }
 
@@ -155,3 +173,14 @@ function omdbThis(movieTitle){
 // * In addition to logging the data to your terminal/bash window, output the data to a .txt file called `log.txt`.
 // * Make sure you append each command you run to the `log.txt` file. 
 // * Do not overwrite your file each time you run a command.
+
+function logIt(info) {
+
+  // We will add the value to the bank file.
+  fs.appendFile("log.txt",info+", ", function(err) {
+    if (err) {
+      return console.log("We made a digital boo boo somewhere...sorry."+err);
+    }
+    console.log(info);
+  });
+}
