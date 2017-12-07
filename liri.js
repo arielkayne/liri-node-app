@@ -3,18 +3,36 @@ var fs = require("fs");
 
 // Include the request/twitter npm package
 var request = require("request");
-var twitter = require('twitter');
+var Twitter = require('twitter');
+var Spotify = require('node-spotify-api');
+
+// pulls in the twitter keys object from the keys.js file
+var twitterKeys = require("./keys.js");
+// console.log(twitterKeys);
+// console.log(twitterKeys.twitterKeys.consumer_key);
+var spotifyKeys = require("./keys.js");
 
 
 // This will show your last 20 tweets and when they were created at in your terminal/bash window.
 if (process.argv[2]==`my-tweets`){
-  // pulls in the twitter keys object from the keys.js file
-  var client = require("./keys.js");
+
+  var client = new Twitter({
+    consumer_key: twitterKeys.twitterKeys.consumer_key,
+    consumer_secret: twitterKeys.twitterKeys.consumer_secret,
+    access_token_key: twitterKeys.twitterKeys.access_token_key,
+    access_token_secret: twitterKeys.twitterKeys.access_token_secret
+  });
 
   var params = {screen_name: 'testdevacct2000'};
-  var twitterEndpoint = "https://api.twitter.com/1.1/statuses/user_timeline.json";
-  
 
+  client.get('statuses/user_timeline', params, function(error, tweets, response) {
+    if (!error) {
+      console.log("\nThese are the last 20 (max) tweets by: "+params.screen_name+"\n");
+      for (i=0;i<tweets.length;i++){
+        console.log(tweets[i].created_at+" "+params.screen_name+" Tweeted: "+tweets[i].text);
+      }
+    };
+  })
 }
 
 
@@ -22,6 +40,32 @@ else if (process.argv[2]==`spotify-this-song`) {
   var spotin =  process.argv[2];
   // console.log(spotin);
 
+  var spotify = new Spotify({
+    id: spotifyKeys.spotifyKeys.id,
+    secret: spotifyKeys.spotifyKeys.secret
+  });
+
+  fs.readFile("random.txt", "utf8", function(error, data){
+  // If the code experiences any errors it will log the error to the console.
+    if (error) {
+      return console.log(error);
+    }
+    var dataArr = data.split(",");
+    var thisSong = dataArr[1];
+
+    console.log("You're searching for: "+thisSong);
+
+
+    spotify.search({ type: 'track', query: thisSong}, function(err, data) {
+     if (err) {
+       return console.log('Error occurred: ' + err);
+     }   
+     console.log("\nHere are your results!\n----------------------\nArtist name: "+data.tracks.items[0].artists[0].name);
+     console.log("Song name: "+data.tracks.items[0].name);
+     console.log("Preview link: "+data.tracks.items[0].preview_url);
+     console.log("Album name: "+data.tracks.items[0].album.name+"\n----------------------\n");
+    });
+  })
 }
    // * This will show the following information about the song in your terminal/bash window
    //   * Artist(s)
@@ -29,12 +73,6 @@ else if (process.argv[2]==`spotify-this-song`) {
    //   * A preview link of the song from Spotify
    //   * The album that the song is from
    // * If no song is provided then your program will default to "The Sign" by Ace of Base.
-   // * You will utilize the [node-spotify-api](https://www.npmjs.com/package/node-spotify-api) package in order to retrieve song information from the Spotify API
-   // * Like the Twitter API, the Spotify API requires you sign up as a developer to generate the necessary credentials. You can follow these steps in order to generate a **client id** and **client secret**:
-   // * Step One: Visit <https://developer.spotify.com/my-applications/#!/>
-   // * Step Two: Either login to your existing Spotify account or create a new one (a free account is fine) and log in.
-   // * Step Three: Once logged in, navigate to <https://developer.spotify.com/my-applications/#!/applications/create> to register a new application to be used with the Spotify API. You can fill in whatever you'd like for these fields. When finished, click the "complete" button.
-   // * Step Four: On the next screen, scroll down to where you see your client id and client secret. Copy these values down somewhere, you'll need them to use the Spotify API and the [node-spotify-api package](https://www.npmjs.com/package/node-spotify-api).
 
 
 else if (process.argv[2]==`movie-this`) {
